@@ -1,1 +1,1 @@
-# raki-bag-shop
+.# raki-bag-shop
