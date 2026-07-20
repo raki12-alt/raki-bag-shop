@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raki Bag Shop Management System</title>
+    <!-- Modern Icons & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-icons/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Authentication Overlay -->
+    <div id="auth-container" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>RAKI BAG SHOP</h2>
+                <p>Management System Portal</p>
+            </div>
+            <form id="auth-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="auth-email" required placeholder="admin@raki.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••">
+                </div>
+                <div class="input-group">
+                    <label>Role</label>
+                    <select id="auth-role">
+                        <option value="admin">Admin / Owner</option>
+                        <option value="employee">Employee / Cashier</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div id="app-container" class="app-layout hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-bag-shopping"></i>
+                <span>RAKI BAG SHOP</span>
+            </div>
+            <div class="user-profile-summary">
+                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div class="info">
+                    <h4 id="user-display-name">Active User</h4>
+                    <span id="user-display-role" class="badge">Admin</span>
+                </div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="#dashboard" class="menu-item active" data-target="dashboard-section"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="#pos" class="menu-item" data-target="pos-section"><i class="fa-solid fa-cash-register"></i> POS System</a>
+                <a href="#inventory" class="menu-item" data-target="inventory-section"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+                <a href="#expenses" class="menu-item" data-target="expenses-section"><i class="fa-solid fa-wallet"></i> Expenses</a>
+                <a href="#customers" class="menu-item" data-target="customers-section"><i class="fa-solid fa-users"></i> Customers</a>
+                <a href="#reports" class="menu-item" data-target="reports-section"><i class="fa-solid fa-file-invoice-dollar"></i> Business Reports</a>
+                <a href="#settings" class="menu-item" data-target="settings-section"><i class="fa-solid fa-gear"></i> System Settings</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="btn-logout" class="btn btn-danger btn-block"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Global Top Bar -->
+           <header class="top-bar">
+                <button id="sidebar-toggle" class="mobile-only"><i class="fa-solid fa-bars"></i></button>
+                <div class="top-bar-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Global system lookup...">
+                </div>
+                <div class="top-bar-actions">
+                    <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+                    <div class="notification-badge" id="alert-trigger">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge-count" id="notification-count">0</span>
+                        <div class="notification-dropdown hidden" id="notification-menu">
+                            <h4>Active Live Alerts</h4>
+                            <div id="notification-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Workspace Windows -->
+            <div class="workspace-body">
+
+                <!-- 1. DASHBOARD MODULE -->
+                <section id="dashboard-section" class="workspace-section">
+                    <div class="section-title">
+                        <h2>Analytics Dashboard</h2>
+                        <p>Real-time shop valuation and operations key metrics.</p>
+                    </div>
+
+                    <!-- Metrics Grid Layout -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon val-sales"><i class="fa-solid fa-basket-shopping"></i></div>
+                            <div class="metric-info">
+                                <span>Today's Sales</span>
+                                <h3 id="dash-today-sales">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-sales"><i class="fa-solid fa-calendar-day"></i></div>
+                            <div class="metric-info">
+                                <span>Weekly Sales</span>
+                                <h3 id="dash-weekly-sales">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-sales"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div class="metric-info">
+                                <span>Monthly Sales</span>
+                                <h3 id="dash-monthly-sales">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-revenue"><i class="fa-solid fa-chart-line"></i></div>
+                            <div class="metric-info">
+                                <span>Total Revenue</span>
+                                <h3 id="dash-total-revenue">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-profit"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div class="metric-info">
+                                <span>Net Profit</span>
+                                <h3 id="dash-net-profit">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-expenses"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            <div class="metric-info">
+                              <span>Total Expenses</span>
+                                <h3 id="dash-total-expenses">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon val-inventory"><i class="fa-solid fa-warehouse"></i></div>
+                            <div class="metric-info">
+                                <span>Inventory Asset Value</span>
+                                <h3 id="dash-inventory-value">0.00 ETB</h3>
+                            </div>
+                        </div>
+                        <div class="metric-card diagnostic-card">
+                            <div class="metric-icon val-alerts"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="metric-info">
+                                <span>Low Stock Items</span>
+                                <h3 id="dash-low-stock-count">0 Items</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Segment Layout -->
+                    <div class="charts-grid">
+                        <div class="chart-container-card">
+                            <h4>Sales and Revenue Performance Trends</h4>
+                            <canvas id="chart-sales-trends"></canvas>
+                        </div>
+                        <div class="chart-container-card">
+                            <h4>Profitability vs Operational Expenses</h4>
+                            <canvas id="chart-profit-expense"></canvas>
+                        </div>
+                        <div class="chart-container-card">
+                            <h4>Category Sales Distribution</h4>
+                            <canvas id="chart-category-performance"></canvas>
+                        </div>
+                        <div class="chart-container-card">
+                            <h4>Top Performing Bag Models</h4>
+                            <canvas id="chart-best-sellers"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. POINT OF SALE System -->
+                <section id="pos-section" class="workspace-section hidden">
+                    <div class="pos-layout">
+                        <!-- POS Products Register Catalog -->
+                        <div class="pos-catalog">
+                            <div class="filter-toolbar">
+                                <input type="text" id="pos-search-input" placeholder="Scan Barcode or Type Bag Name / Brand...">
+                                <select id="pos-category-filter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="pos-grid-container" id="pos-catalog-grid">
+                                <!-- Dynamically Rendered Products -->
+                            </div>
+                        </div>
+
+                        <!-- POS Operational Cart Register -->
+                        <div class="pos-checkout-panel">
+                            <h3>Current Transaction</h3>
+                            <div class="customer-assignment">
+                                <select id="pos-customer-select">
+                                    <option value="walk-in">Anonymous Walk-in Customer</option>
+                                </select>
+                            </div>
+                            <div class="cart-items-manifest" id="pos-cart-manifest">
+                                <!-- Items Added Go Here -->
+                            </div>
+                            <div class="checkout-breakdown">
+                           <div class="breakdown-row"><span>Subtotal</span><span id="pos-subtotal">0.00 ETB</span></div>
+                                <div class="breakdown-row">
+                                    <span>Discount (%)</span>
+                                    <input type="number" id="pos-discount" min="0" max="100" value="0">
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Tax Rate (%)</span>
+                                    <input type="number" id="pos-tax" min="0" max="100" value="15">
+                                </div>
+                                <hr>
+                                <div class="breakdown-row grand-total"><span>Grand Total</span><span id="pos-grand-total">0.00 ETB</span></div>
+                            </div>
+                            <div class="payment-method-selection">
+                                <label>Payment Structure</label>
+                                <div class="payment-options">
+                                    <label><input type="radio" name="payment-method" value="Cash" checked> Cash</label>
+                                    <label><input type="radio" name="payment-method" value="CBE Birr"> CBE Birr</label>
+                                    <label><input type="radio" name="payment-method" value="Telebirr"> Telebirr</label>
+                                    <label><input type="radio" name="payment-method" value="Card"> Card</label>
+                                </div>
+                            </div>
+                            <button id="pos-complete-order" class="btn btn-success btn-block"><i class="fa-solid fa-print"></i> Execute Order & Print Invoice</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. INVENTORY MANAGEMENT -->
+                <section id="inventory-section" class="workspace-section hidden">
+                    <div class="action-heading">
+                        <h2>Product & Inventory Registry</h2>
+                        <button class="btn btn-primary" id="open-product-modal"><i class="fa-solid fa-plus"></i> Register New Bag Product</button>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="data-table" id="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Barcode</th>
+                                    <th>Bag Name</th>
+                                    <th>Category/Brand</th>
+                                    <th>Spec (Size/Color)</th>
+                                    <th>Stock Level</th>
+                                    <th>Buying Price</th>
+                                    <th>Selling Price</th>
+                                    <th>Projected Profit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body">
+                                <!-- Injected rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4. EXPENSES TRACKER -->
+                <section id="expenses-section" class="workspace-section hidden">
+                    <div class="action-heading">
+                        <h2>Operational Outflows & Expenses</h2>
+                        <button class="btn btn-primary" id="open-expense-modal"><i class="fa-solid fa-plus"></i> Record New Expense</button>
+                    </div>
+                    <div class="data-table-container">
+                       <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date Logged</th>
+                                    <th>Category</th>
+                                    <th>Description / Reference</th>
+                                    <th>Financial Outflow</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expense-table-body">
+                                <!-- Expenses -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 5. CUSTOMER REGISTRY -->
+                <section id="customers-section" class="workspace-section hidden">
+                    <div class="action-heading">
+                        <h2>Clientele & Customer Loyalty Base</h2>
+                        <button class="btn btn-primary" id="open-customer-modal"><i class="fa-solid fa-plus"></i> Register Customer</button>
+                    </div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Full Name</th>
+                                    <th>Contact Number</th>
+                                    <th>Total Orders Placed</th>
+                                    <th>Gross Volume Traveled</th>
+                                    <th>Loyalty Tier</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customer-table-body">
+                                <!-- Customers -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 6. FINANCIAL STATEMENTS & REPORTS -->
+                <section id="reports-section" class="workspace-section hidden">
+                    <div class="section-title">
+                        <h2>Auditing and System Reports Hub</h2>
+                        <p>Generate certified printouts and metrics reports of financial distributions.</p>
+                    </div>
+                    <div class="reports-action-bar">
+                        <select id="report-timeframe">
+                            <option value="daily">Daily Audit Report</option>
+                            <option value="weekly">Weekly Operational Statement</option>
+                            <option value="monthly">Monthly Consolidated Performance</option>
+                            <option value="yearly">Yearly Comprehensive Ledger</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Local Hardcopy Print</button>
+                        <button class="btn btn-success" id="export-excel-mock"><i class="fa-solid fa-file-excel"></i> Export Matrix to Sheet (.csv)</button>
+                    </div>
+                    <div class="report-preview-sheet">
+                        <h3>RAKI BAG SHOP AUDITING SHEET</h3>
+                        <p>Generated on real-time application database sync matrix parameters.</p>
+                        <hr>
+                        <div class="metrics-grid text-dark">
+                            <div><strong>Statement Gross Balance:</strong> <span id="report-gross">0.00 ETB</span></div>
+                            <div><strong>Expense Adjustments:</strong> <span id="report-expenses">0.00 ETB</span></div>
+                            <div><strong>Net Margin Returns:</strong> <span id="report-net">0.00 ETB</span></div>
+                        </div>
+                    </div>
+                </section>
+                 <!-- 7. SETTINGS & PREFERENCES MODULE -->
+                <section id="settings-section" class="workspace-section hidden">
+                    <div class="section-title">
+                        <h2>Global Enterprise Setup Parameters</h2>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3>Store Identity Profile</h3>
+                            <div class="input-group">
+                                <label>Corporate Registered Store Name</label>
+                                <input type="text" id="setting-shop-name" value="RAKI BAG SHOP">
+                            </div>
+                            <div class="input-group">
+                                <label>Currency Matrix Symbol</label>
+                                <input type="text" id="setting-currency" value="ETB" disabled>
+                            </div>
+                            <button class="btn btn-primary" id="save-shop-settings">Update Store Profile Parameters</button>
+                        </div>
+                        <div class="settings-card">
+                            <h3>System Backup Procedures</h3>
+                            <p>Generate data array dump sets containing full relational schemas for high availability states.</p>
+                            <button class="btn id="btn-backup-system" style="background: var(--neutral-color); color:white;"><i class="fa-solid fa-download"></i> Generate Encoded Backup Dump</button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- REUSABLE DYNAMIC SCHEMATIC MODALS -->
+    <!-- Add/Edit Product Modal -->
+    <div id="product-modal" class="modal-overlay hidden">
+        <div class="modal-window">
+            <div class="modal-header"><h3>Product Registry Setup</h3><button class="close-modal">&times;</button></div>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+                <div class="form-grid">
+                    <div class="input-group"><label>Barcode / Unique Serial ID</label><input type="text" id="prod-barcode" required></div>
+                    <div class="input-group"><label>Bag Model Name</label><input type="text" id="prod-name" required></div>
+                    <div class="input-group"><label>Structural Classification Category</label><input type="text" id="prod-category" placeholder="Backpack, Luxury, Handbag..." required></div>
+                    <div class="input-group"><label>Manufacturing Brand</label><input type="text" id="prod-brand" required></div>
+                    <div class="input-group"><label>Color Profile Spec</label><input type="text" id="prod-color"></div>
+                    <div class="input-group"><label>Dimension / Size Class</label><input type="text" id="prod-size" placeholder="Medium, Large, Small"></div>
+                    <div class="input-group"><label>Initial Stock Unit Count</label><input type="number" id="prod-qty" min="0" required></div>
+                    <div class="input-group"><label>Asset Unit Acquisition Price (ETB)</label><input type="number" step="0.01" id="prod-buy-price" required></div>
+                    <div class="input-group"><label>Standard Base Selling Price (ETB)</label><input type="number" step="0.01" id="prod-sell-price" required></div>
+                    <div class="input-group"><label>Product Asset Display Image URL</label><input type="text" id="prod-image" placeholder="https://images.unsplash.com/photo-..."></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block margin-top">Commit Product Record to Database</button>
+            </form>
+        </div>
+    </div>
+     <!-- Add Expense Modal -->
+    <div id="expense-modal" class="modal-overlay hidden">
+        <div class="modal-window max-w-sm">
+            <div class="modal-header"><h3>Record System Expense Flow</h3><button class="close-modal">&times;</button></div>
+            <form id="expense-form">
+                <div class="input-group">
+                    <label>Operational Outflow Classification</label>
+                    <select id="exp-category">
+                        <option value="Rent">Shop Unit Rental Facility</option>
+                        <option value="Salary">Staff Employee Remuneration</option>
+                        <option value="Transport">Logistics & Supply Transport</option>
+                        <option value="Electricity">Utility Power grid/Electricity</option>
+                        <option value="Internet">Data Infrastructure/Internet</option>
+                        <option value="Other">Miscellaneous Outflow</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Description Particulars</label><input type="text" id="exp-desc" required></div>
+                <div class="input-group"><label>Financial Transacted Amount (ETB)</label><input type="number" step="0.01" id="exp-amount" required></div>
+                <button type="submit" class="btn btn-primary btn-block margin-top">Log Cash Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="customer-modal" class="modal-overlay hidden">
+        <div class="modal-window max-w-sm">
+            <div class="modal-header"><h3>Customer Loyalty Framework Registry</h3><button class="close-modal">&times;</button></div>
+            <form id="customer-form">
+                <div class="input-group"><label>Full Customer Name</label><input type="text" id="cust-name" required></div>
+                <div class="input-group"><label>Validated Mobile Contact Number</label><input type="text" id="cust-phone" required></div>
+                <button type="submit" class="btn btn-primary btn-block margin-top">Create Customer Registry Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- INVOICE HARDCOPY LAYOUT PRINT ENGINE SHELL (HIDDEN IN GRAPHICAL INTERFACE SESSIONS) -->
+    <div id="invoice-print-engine-shell"></div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
